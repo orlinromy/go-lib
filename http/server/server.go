@@ -11,14 +11,15 @@ import (
 	"github.com/kelchy/go-lib/log"
 )
 
-type ChiRouter = chi.Router
 
+// Router - initialized instance
 type Router struct {
 	Engine		*chi.Mux
 	log		log.Log
 	logRequest	bool
 }
 
+// New - constructor function to initialize instance
 func New(origins []string) (Router, error) {
 	var rtr Router
 	l, e := log.New("")
@@ -58,6 +59,7 @@ func (rtr *Router) SetLogRequest(lr bool) {
 	rtr.logRequest = lr
 }
 
+// Run - run and listen for http
 func (rtr Router) Run(proto string, hostport string) error {
 	rtr.log.Out("SERVER_RUN", "Listening " + proto + " " + hostport)
 	var e error
@@ -76,6 +78,7 @@ func (rtr Router) Run(proto string, hostport string) error {
 	return e
 }
 
+// RunS - run and listen for https
 func (rtr Router) RunS(proto string, hostport string, crt string, key string) error {
 	rtr.log.Out("SERVER_RUNS", "Listening " + proto + " " + hostport)
 	var e error
@@ -92,12 +95,14 @@ func (rtr Router) RunS(proto string, hostport string, crt string, key string) er
 	return e
 }
 
+// Static - function to handle and serve static files within a directory on live system
 func (rtr Router) Static(urlPath string, dirPath string) {
 	// do not use wildcard (*) in urlPath
 	rtr.Engine.Handle(urlPath + "*", http.StripPrefix(urlPath, http.FileServer(http.Dir(dirPath))))
 	// TODO: handle wildcards better
 }
 
+// StaticFs - function to handle and serve static files embedded into binary using esc
 func (rtr Router) StaticFs(urlPath string, fs http.FileSystem) {
 	/*
 	generate a boxed static filesystem by using esc (https://github.com/mjibson/esc):

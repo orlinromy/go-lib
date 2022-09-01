@@ -8,13 +8,15 @@ import (
 	"github.com/kelchy/go-lib/log"
 )
 
+// Res - response instance from http call
 type Res struct {
 	Response	http.Response
 	Error		error
 	log		log.Log
 }
 
-func (r Res) Html() (string, error) {
+// HTML - method to return the html content of response
+func (r Res) HTML() (string, error) {
 	var data bytes.Buffer
 	if r.Error != nil {
 		return data.String(), r.Error
@@ -24,7 +26,8 @@ func (r Res) Html() (string, error) {
 	return data.String(), e
 }
 
-func (r Res) Json() (interface{}, error) {
+// JSON - method to return the json content of response
+func (r Res) JSON() (interface{}, error) {
 	var data interface{}
 	if r.Error != nil {
 		return data, r.Error

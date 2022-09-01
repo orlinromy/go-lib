@@ -12,8 +12,10 @@ import (
 	"github.com/kelchy/go-lib/log"
 )
 
-var DEFAULT_TIMEOUT = 30000
+// TIMEOUT - default timeout
+const TIMEOUT = 30000
 
+// Client - initiated client instance
 type Client struct {
 	Client	*http.Client
 	timeout	int
@@ -33,7 +35,7 @@ func New() (Client, error) {
 		},
 	}
 	client.Client = c
-	client.timeout = DEFAULT_TIMEOUT
+	client.timeout = TIMEOUT
 	l, e := log.New("")
 	if e != nil {
 		return client, e
@@ -42,8 +44,8 @@ func New() (Client, error) {
 	return client, nil
 }
 
-// NewHttp2 - creates and returns http/2 client
-func NewHttp2() (Client, error) {
+// NewHTTP2 - creates and returns http/2 client
+func NewHTTP2() (Client, error) {
 	var client Client
 	c := &http.Client{
 		Transport: &http2.Transport{
@@ -58,7 +60,7 @@ func NewHttp2() (Client, error) {
 		},
 	}
 	client.Client = c
-	client.timeout = DEFAULT_TIMEOUT
+	client.timeout = TIMEOUT
 	l, e := log.New("")
 	client.log = l
 	if e != nil {

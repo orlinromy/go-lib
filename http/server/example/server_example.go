@@ -11,7 +11,7 @@ func main() {
         rtr, _ := server.New([]string{"http://localhost:8080"})
 
 	// sample custom middleware
-        rtr.Use(func (next http.Handler) http.Handler {
+        rtr.Engine.Use(func (next http.Handler) http.Handler {
                 return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
                         next.ServeHTTP(w, r)
                 })

@@ -10,10 +10,6 @@ import (
 	"github.com/urfave/negroni"
 )
 
-func (rtr Router) Use(mw func(http.Handler) http.Handler) {
-	rtr.Engine.Use(mw)
-}
-
 func (rtr Router) catchall(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t1 := time.Now()
