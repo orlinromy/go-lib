@@ -9,7 +9,12 @@ import (
 
 func main() {
 	uri := os.Getenv("REDIS_URI")
-	redisclient, _ := redis.New(uri)
+	redisclient, e := redis.New(uri)
+        if e != nil {
+		fmt.Println(e)
+		return
+	}
+
 	keys, _ := redisclient.Keys("*")
 	fmt.Println("keys", keys)
 
