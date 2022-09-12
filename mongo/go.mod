@@ -7,4 +7,4 @@ require (
 	go.mongodb.org/mongo-driver v1.4.1
 )
 
-go 1.13
+go 1.18
