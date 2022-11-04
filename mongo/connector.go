@@ -16,7 +16,7 @@ type Client struct {
 	Uri        string
 	Db         *mongo.Database
 	Connection *mongo.Client
-	Log        log.Log
+	log        log.Log
 }
 
 // New - constructor to initiate client instance
@@ -54,7 +54,7 @@ func New(uri string) (Client, error) {
 		return client, e
 	}
 	client.Db = conn.Database(db)
-	client.Log = l
+	client.log = l
 	return client, e
 }
 
