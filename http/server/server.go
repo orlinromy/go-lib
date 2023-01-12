@@ -44,12 +44,12 @@ func New(origins []string, headers []string) (*Router, error) {
 	}
 	rtr.Engine = chi.NewRouter()
 	rtr.Engine.Use(cors.Handler(cors.Options{
-		AllowedOrigins:		origins,
-		AllowedMethods:		[]string{ "GET", "POST", "PUT", "DELETE", "OPTIONS" },
-		AllowedHeaders:		headers,
-		ExposedHeaders:		[]string{"Link"},
-		AllowCredentials:	true,
-		MaxAge:			12 * 60 * 60,
+		AllowedOrigins:	origins,
+		AllowedMethods:	[]string{ "GET", "POST", "PUT", "DELETE", "OPTIONS" },
+		AllowedHeaders:	headers,
+		ExposedHeaders:	[]string{"Link"},
+		AllowCredentials: true,
+		MaxAge:		12 * 60 * 60,
 	}))
 	rtr.Engine.Use(middleware.RealIP)
 	rtr.Engine.Use(rtr.catchall)
