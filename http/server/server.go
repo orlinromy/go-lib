@@ -23,11 +23,7 @@ type Router struct {
 }
 
 // New - constructor function to initialize instance
-<<<<<<< Updated upstream
-func New(origins []string) (*Router, error) {
-=======
 func New(origins []string, headers []string) (Router, error) {
->>>>>>> Stashed changes
 	var rtr Router
 
 	l, e := log.New("")
@@ -48,17 +44,10 @@ func New(origins []string, headers []string) (Router, error) {
 	}
 	rtr.Engine = chi.NewRouter()
 	rtr.Engine.Use(cors.Handler(cors.Options{
-<<<<<<< Updated upstream
-		AllowedOrigins:   origins,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-=======
 		AllowedOrigins: origins,
 		AllowedMethods: []string{ "GET", "POST", "PUT", "DELETE", "OPTIONS" },
 		AllowedHeaders: headers,
 		ExposedHeaders: []string{"Link"},
->>>>>>> Stashed changes
 		AllowCredentials: true,
 		MaxAge:           12 * 60 * 60,
 	}))
