@@ -1,3 +1,11 @@
+# RMQ Consumer
+
+This library is a wrapper around RMQ functions to make interaction with RMQ simpler and safer
+
+## Quickstart
+
+Refer to the below code snippet for how to set up a publisher called `test-publisher` publishing events to an exchange `test-exchange` with a routing key `test-routing-key`. 
+```
 package main
 
 import (
@@ -30,3 +38,4 @@ func main() {
 	}
 	fmt.Println("Message published with id: ", messageId)
 }
+```

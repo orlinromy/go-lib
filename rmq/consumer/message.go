@@ -1,4 +1,4 @@
-package rmq
+package consumer
 
 import (
 	"github.com/streadway/amqp"

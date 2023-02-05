@@ -1,10 +1,9 @@
-package rmq
+package consumer
 
 import (
 	"context"
 	"fmt"
 
-	Logger "github.com/kelchy/go-lib/log"
 	"github.com/streadway/amqp"
 )
 
@@ -21,11 +20,11 @@ type IClientHandler interface {
 
 type EventHandler struct {
 	processor   IClientHandler
-	logger      Logger.Log
+	logger      ILogger
 	retryConfig *MessageRetryConfig
 }
 
-func NewEventHandler(processor IClientHandler, logger Logger.Log, retryConfig *MessageRetryConfig) IEventHandler {
+func NewEventHandler(processor IClientHandler, logger ILogger, retryConfig *MessageRetryConfig) IEventHandler {
 	return &EventHandler{
 		processor:   processor,
 		logger:      logger,
@@ -34,7 +33,6 @@ func NewEventHandler(processor IClientHandler, logger Logger.Log, retryConfig *M
 }
 
 func (e *EventHandler) HandleEvent(ctx context.Context, message IMessage) {
-	e.logger.Debug("EVENT_HANDLER", fmt.Sprintf("msg => %s received", message.GetID()))
 	err := e.processor.ProcessEvent(ctx, message)
 	if err != nil {
 		if e.retryConfig.Enabled {
@@ -44,12 +42,6 @@ func (e *EventHandler) HandleEvent(ctx context.Context, message IMessage) {
 		e.HandleDeadMessage(ctx, message, err)
 		return
 	}
-	err = message.Ack(true)
-	if err != nil {
-		e.logger.Error(fmt.Sprintf("ERR_EVENT_HANDLER-FAIL-MSG-ACK-%s", message.GetID()), err)
-		return
-	}
-	e.logger.Debug("EVENT_HANDLER", fmt.Sprintf("msg => %s processed success", message.GetID()))
 }
 
 func (e *EventHandler) Retry(ctx context.Context, message IMessage, err error) {
@@ -71,26 +63,19 @@ func (e *EventHandler) Retry(ctx context.Context, message IMessage, err error) {
 					e.logger.Error(fmt.Sprintf("ERR_EVENT_HANDLER-FAIL-MSG-ACK-%s", message.GetID()), errAck)
 					return
 				}
-				e.logger.Debug("EVENT_HANDLER-RETRY", fmt.Sprintf("msg => %s retried with count %d", message.GetID(), int(retryCount)))
 				return
 			}
-			e.logger.Debug("EVENT_HANDLER-RETRY", fmt.Sprintf("retry count %d exceeded for msg %s, passing to deadHandler", int(retryCount), message.GetID()))
-			e.HandleDeadMessage(ctx, message, retryCountExceeded)
+			e.HandleDeadMessage(ctx, message, fmt.Errorf("retry count %d exceeded for msg %s", int(retryCount), message.GetID()))
 		}
 	}
 	e.HandleDeadMessage(ctx, message, err)
 }
 
 func (e *EventHandler) HandleDeadMessage(ctx context.Context, message IMessage, err error) {
-	e.logger.Debug("EVENT_HANDLER-DEAD-MSG", fmt.Sprintf("msg => %s dead", message.GetID()))
 	if e.retryConfig.HandleDeadMessage {
 		handleDMErr := e.processor.ProcessDeadMessage(ctx, message, err)
 		if handleDMErr != nil {
 			e.logger.Error(fmt.Sprintf("ERR_EVENT_HANDLER-DEAD-MSG-FAIL-MSG-ACK-%s", message.GetID()), handleDMErr)
 		}
-	}
-	errAck := message.Ack(true)
-	if errAck != nil {
-		e.logger.Error(fmt.Sprintf("ERR_EVENT_HANDLER-DEAD-MSG-FAIL-MSG-ACK-%s", message.GetID()), errAck)
 	}
 }

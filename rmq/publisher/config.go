@@ -1,8 +1,10 @@
 package publisher
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/kelchy/go-lib/log"
 	"github.com/streadway/amqp"
 )
 
@@ -62,4 +64,12 @@ func DefaultPublishMessage(message []byte) amqp.Publishing {
 		Timestamp:    time.Now(),
 		Body:         message,
 	}
+}
+
+func DefaultLogger() ILogger {
+	logger, err := log.New("standard")
+	if err != nil {
+		fmt.Println("failed to create logger: ", err)
+	}
+	return logger
 }

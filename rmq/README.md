@@ -6,14 +6,9 @@ Functionlity Supported:
 
 | Functionality | Supported? |
 | -----------   | ----------- |
-| Exchange      | ✅ |
 | Publisher     | ✅ |
 | Consumer      | ✅ |
 | Dead Letter Queue   | [WIP] Currently Untested |
 
-## Example
-Refer to ./example for how to use the library
-
-```
-go run example/rmq.example.go
-```
+## Quickstart
+Refer to the respective publisher and consumer packages for how to use the library

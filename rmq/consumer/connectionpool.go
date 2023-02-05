@@ -1,4 +1,4 @@
-package rmq
+package consumer
 
 import (
 	"github.com/streadway/amqp"
@@ -38,6 +38,5 @@ func (connPool *connectionPool) GetCon() (*amqp.Connection, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return con, err
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kelchy/go-lib/log"
 	"github.com/streadway/amqp"
 )
 
@@ -20,13 +19,13 @@ type Publisher struct {
 }
 
 type ILogger interface {
+	Debug(key string, message string)
 	Out(key string, message string)
 	Error(key string, err error)
 }
 
 // New creates a new publisher
-func New(connConfig ConnectionConfig, pubConfig PublisherConfig) (*Publisher, error) {
-	logger, _ := log.New("standard")
+func New(connConfig ConnectionConfig, pubConfig PublisherConfig, logger ILogger) (*Publisher, error) {
 	publisher := Publisher{
 		logger:    logger,
 		pubConfig: pubConfig,
@@ -87,11 +86,11 @@ func (p *Publisher) connect(connConfig ConnectionConfig) error {
 	return nil
 }
 
-func (r *Publisher) openChannel() (*amqp.Channel, error) {
-	if r.conn == nil || r.conn.IsClosed() {
+func (p *Publisher) openChannel() (*amqp.Channel, error) {
+	if p.conn == nil || p.conn.IsClosed() {
 		return nil, fmt.Errorf("connection is not open")
 	}
-	return r.conn.Channel()
+	return p.conn.Channel()
 }
 
 func (p *Publisher) listenOnChanClose() {
