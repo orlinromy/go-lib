@@ -20,7 +20,7 @@ type Client struct {
 }
 
 // New - constructor to create an instance of the client
-func New(uri string, tlsCerts []tls.Certificate) (Client, error) {
+func New(uri string, tlsCert tls.Certificate) (Client, error) {
 	l, _ := log.New("")
 	var r Client
 	opt, err := redis.ParseURL(uri)
@@ -31,9 +31,9 @@ func New(uri string, tlsCerts []tls.Certificate) (Client, error) {
 
 	// tlsCerts generated with tls.X509KeyPair()
 	// enable TLS connections if input provided
-	if len(tlsCerts) > 0 {
+	if tlsCert.Certificate != nil {
 		opt.TLSConfig = &tls.Config{
-			Certificates: tlsCerts,
+			Certificates: []tls.Certificate{tlsCert},
 		}
 	}
 
