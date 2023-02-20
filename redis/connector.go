@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 
 	redis "github.com/go-redis/redis/v8"
 	"github.com/kelchy/go-lib/log"
@@ -20,9 +21,40 @@ type Client struct {
 }
 
 // New - constructor to create an instance of the client
-func New(uri string, tlsCert tls.Certificate) (Client, error) {
+func New(uri string) (Client, error) {
 	l, _ := log.New("")
 	var r Client
+	opt, err := redis.ParseURL(uri)
+	if err != nil {
+		l.Error("REDIS_PARSE_URL", err)
+		return r, err
+	}
+	r.Client = redis.NewClient(opt)
+	r.ctx = context.Background()
+	r.log = l
+	pong, err := r.Client.Ping(r.ctx).Result()
+	if err != nil {
+		l.Error("REDIS_PING", err)
+		return r, err
+	} else if pong != "PONG" {
+		err = errors.New("redis ping no pong")
+		l.Error("REDIS_PONG", err)
+		return r, err
+	}
+	return r, nil
+}
+
+// NewSecure - constructor to create an instance of the client
+func NewSecure(uri string, clientCert string, clientKey string) (Client, error) {
+	l, _ := log.New("")
+	var r Client
+
+	tlsCert, tlsErr := tls.X509KeyPair([]byte(clientCert), []byte(clientKey))
+	if tlsErr != nil {
+		fmt.Println("err", tlsErr)
+		return r, tlsErr
+	}
+
 	opt, err := redis.ParseURL(uri)
 	if err != nil {
 		l.Error("REDIS_PARSE_URL", err)
