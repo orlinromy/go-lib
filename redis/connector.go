@@ -45,9 +45,14 @@ func New(uri string) (Client, error) {
 }
 
 // NewSecure - constructor to create an instance of the client
-func NewSecure(uri string, clientCert []byte, clientKey []byte) (Client, error) {
+func NewSecure(uri string, clientCert []byte, clientKey []byte, skipVerifyCondition bool) (Client, error) {
 	l, _ := log.New("")
 	var r Client
+
+	skipVerify := false
+	if skipVerifyCondition {
+		skipVerify = skipVerifyCondition
+	}
 
 	tlsCert, tlsErr := tls.X509KeyPair(clientCert, clientKey)
 	if tlsErr != nil {
@@ -65,9 +70,8 @@ func NewSecure(uri string, clientCert []byte, clientKey []byte) (Client, error) 
 	// enable TLS connections if input provided
 	if tlsCert.Certificate != nil {
 		opt.TLSConfig = &tls.Config{
-			Certificates: []tls.Certificate{tlsCert},
-			// uncomment below when running on local
-			// InsecureSkipVerify: true,
+			Certificates:       []tls.Certificate{tlsCert},
+			InsecureSkipVerify: skipVerify,
 		}
 	}
 

@@ -21,7 +21,8 @@ func main() {
 -----END RSA PRIVATE KEY-----`
 
 	// use redis.New if TLS connection is not required
-	redisclient, e := redis.NewSecure(uri, []byte(clientCert), []byte(clientKey))
+	// skipVerifyCondition should only be true when running locally
+	redisclient, e := redis.NewSecure(uri, []byte(clientCert), []byte(clientKey), false)
 	if e != nil {
 		fmt.Println(e)
 		return
