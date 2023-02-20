@@ -1,53 +1,51 @@
 package main
 
 import (
-	"crypto/tls"
+	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/kelchy/go-lib/redis"
 )
 
 func main() {
-	uri := os.Getenv("REDIS_URI")
-	clientCert := os.Getenv("REDIS_CLIENT_CERT")
-	clientKey := os.Getenv("REDIS_CLIENT_KEY")
 
-	var err error
-	var tlsCert tls.Certificate
+	uri := "<redis uri here>"
 
-	if clientCert != "" && clientKey != "" {
-		tlsCert, err = tls.X509KeyPair([]byte(clientCert), []byte(clientKey))
-		if err != nil {
-			fmt.Println("err", err)
-		}
-	}
+	// cert string is format sensitive, remove indentation
+	clientCert := `-----BEGIN CERTIFICATE-----
+< your cert here >
+-----END CERTIFICATE-----`
+	clientKey := `-----BEGIN RSA PRIVATE KEY-----
+< your key here >
+-----END RSA PRIVATE KEY-----`
 
-	redisclient, e := redis.New(uri, tlsCert)
+	// use redis.New if TLS connection is not required
+	redisclient, e := redis.NewSecure(uri, []byte(clientCert), []byte(clientKey))
 	if e != nil {
 		fmt.Println(e)
 		return
 	}
 
-	keys, _ := redisclient.Keys(nil, "*")
+	// inputting nil will cause an error, context.TODO() is preferred
+	keys, _ := redisclient.Keys(context.TODO(), "*")
 	fmt.Println("keys", keys)
 
-	res, _ := redisclient.Set(nil, "key", "value2", 10*time.Second)
+	res, _ := redisclient.Set(context.TODO(), "key", "value2", 10*time.Second)
 	fmt.Println("result", res)
 
-	resi, _ := redisclient.Del(nil, "key")
+	resi, _ := redisclient.Del(context.TODO(), "key")
 	fmt.Println("result int", resi)
 
-	resb, _ := redisclient.SetNX(nil, "key", "value2", 10*time.Second)
+	resb, _ := redisclient.SetNX(context.TODO(), "key", "value2", 10*time.Second)
 	fmt.Println("result bool", resb)
 
-	val, _ := redisclient.Get(nil, "key")
+	val, _ := redisclient.Get(context.TODO(), "key")
 	fmt.Println("result value", val)
 
-	lock, _ := redisclient.Lock(nil, "locktest", 20*time.Second)
+	lock, _ := redisclient.Lock(context.TODO(), "locktest", 20*time.Second)
 	fmt.Println("result lock", lock)
 
-	unlock, _ := redisclient.Unlock(nil, "locktest")
+	unlock, _ := redisclient.Unlock(context.TODO(), "locktest")
 	fmt.Println("result unlock", unlock)
 }
