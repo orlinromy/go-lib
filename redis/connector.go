@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
 
 	redis "github.com/go-redis/redis/v8"
 	"github.com/kelchy/go-lib/log"
@@ -56,7 +55,7 @@ func NewSecure(uri string, clientCert []byte, clientKey []byte, skipVerifyCondit
 
 	tlsCert, tlsErr := tls.X509KeyPair(clientCert, clientKey)
 	if tlsErr != nil {
-		fmt.Println("err", tlsErr)
+		l.Error("err", tlsErr)
 		return r, tlsErr
 	}
 
