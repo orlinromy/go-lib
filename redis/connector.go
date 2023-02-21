@@ -44,11 +44,11 @@ func New(uri string) (Client, error) {
 }
 
 // NewSecure - constructor to create an instance of the client
-func NewSecure(uri string, clientCert string, clientKey string, skipVerify bool) (Client, error) {
+func NewSecure(uri string, clientCertPath string, clientKeyPath string, skipVerify bool) (Client, error) {
 	l, _ := log.New("")
 	var r Client
 
-	tlsCert, tlsErr := tls.LoadX509KeyPair(clientCert, clientKey)
+	tlsCert, tlsErr := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
 	if tlsErr != nil {
 		l.Error("err", tlsErr)
 		return r, tlsErr
