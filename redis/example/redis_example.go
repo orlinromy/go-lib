@@ -22,7 +22,7 @@ func main() {
 
 	// use redis.New if TLS connection is not required
 	// skipVerifyCondition should only be true when running locally
-	redisclient, e := redis.NewSecure(uri, []byte(clientCert), []byte(clientKey), false)
+	redisclient, e := redis.NewSecure(uri, clientCert, clientKey, false)
 	if e != nil {
 		fmt.Println(e)
 		return
