@@ -48,7 +48,7 @@ func NewSecure(uri string, clientCert string, clientKey string, skipVerify bool)
 	l, _ := log.New("")
 	var r Client
 
-	tlsCert, tlsErr := tls.X509KeyPair([]byte(clientCert), []byte(clientKey))
+	tlsCert, tlsErr := tls.LoadX509KeyPair(clientCert, clientKey)
 	if tlsErr != nil {
 		l.Error("err", tlsErr)
 		return r, tlsErr

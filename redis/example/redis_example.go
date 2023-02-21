@@ -12,17 +12,13 @@ func main() {
 
 	uri := "<redis uri here>"
 
-	// cert string is format sensitive, remove indentation
-	clientCert := `-----BEGIN CERTIFICATE-----
-< your cert here >
------END CERTIFICATE-----`
-	clientKey := `-----BEGIN RSA PRIVATE KEY-----
-< your key here >
------END RSA PRIVATE KEY-----`
+	// path to cert files
+	clientCertPath := "<file-path>"
+	clientKeyPath := `<file-path>`
 
 	// use redis.New if TLS connection is not required
 	// skipVerifyCondition should only be true when running locally
-	redisclient, e := redis.NewSecure(uri, clientCert, clientKey, false)
+	redisclient, e := redis.NewSecure(uri, clientCertPath, clientKeyPath, false)
 	if e != nil {
 		fmt.Println(e)
 		return
