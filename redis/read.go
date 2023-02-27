@@ -2,7 +2,7 @@ package redis
 
 import (
 	"context"
-	"strings"
+	"fmt"
 	"time"
 
 	redis "github.com/go-redis/redis/v8"
@@ -39,29 +39,28 @@ func (r Client) Keys(ctx context.Context, match string) ([]string, error) {
 }
 
 // TTL - implementation of redis TTL, ctx can be nil
-// - returns in time.Duration which is always in nanoseconds, so we accept a params to convert in library
-func (r Client) TTL(ctx context.Context, key string, precision string) (time.Duration, error) {
+// -- returns in time.Duration which is always in nanoseconds; convert to seconds
+// -- it returns -1 (-1ns) when there is no associated expiry
+// -- it returns -2 (-2ns) when there is no key
+func (r Client) TTL(ctx context.Context, key string) (time.Duration, error) {
 	val, err := r.Client.TTL(ctx, key).Result()
-	if err != nil && err != redis.Nil {
+
+	if err != nil {
 		r.log.Error("REDIS_TTL", err)
-		return 0, err
+		return -3, err
 	}
 
-	// handle conversion
-	switch strings.ToLower(precision) {
-	case "hours":
-		val = val / time.Hour
-	case "minutes":
-		val = val / time.Minute
-	case "seconds":
-		val = val / time.Second
-	case "microseconds":
-		val = val / time.Microsecond
-	case "millisecond":
-		val = val / time.Millisecond
-	default:
-		val = val / time.Second
+	if val == -2 {
+		errMsg := fmt.Errorf("no TTL found for key")
+		r.log.Error("REDIS_TTL_NOT_FOUND", errMsg)
+		return -2, errMsg
 	}
 
-	return val, err
+	if val == -1 {
+		errMsg := fmt.Errorf("TTL does not expire")
+		r.log.Error("REDIS_TTL_NO_EXPIRY", errMsg)
+		return -1, errMsg
+	}
+
+	return val / time.Second, nil
 }
