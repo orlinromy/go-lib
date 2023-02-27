@@ -2,6 +2,9 @@ package redis
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	redis "github.com/go-redis/redis/v8"
 )
 
@@ -33,4 +36,32 @@ func (r Client) Keys(ctx context.Context, match string) ([]string, error) {
 		}
 	}
 	return list, nil
-} 
+}
+
+// TTL - implementation of redis TTL, ctx can be nil
+// - returns in time.Duration which is always the nanoseconds, so we accept a params to convert in library
+func (r Client) TTL(ctx context.Context, key string, precision string) (time.Duration, error) {
+	val, err := r.Client.TTL(ctx, key).Result()
+	if err != nil && err != redis.Nil {
+		r.log.Error("REDIS_TTL", err)
+		return 0, err
+	}
+
+	// handle conversion
+	switch strings.ToLower(precision) {
+	case "hours":
+		val = val / time.Hour
+	case "minutes":
+		val = val / time.Minute
+	case "seconds":
+		val = val / time.Second
+	case "microseconds":
+		val = val / time.Microsecond
+	case "millisecond":
+		val = val / time.Millisecond
+	default:
+		val = val / time.Second
+	}
+
+	return val, err
+}
