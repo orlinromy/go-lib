@@ -39,7 +39,7 @@ func (r Client) Keys(ctx context.Context, match string) ([]string, error) {
 }
 
 // TTL - implementation of redis TTL, ctx can be nil
-// - returns in time.Duration which is always the nanoseconds, so we accept a params to convert in library
+// - returns in time.Duration which is always in nanoseconds, so we accept a params to convert in library
 func (r Client) TTL(ctx context.Context, key string, precision string) (time.Duration, error) {
 	val, err := r.Client.TTL(ctx, key).Result()
 	if err != nil && err != redis.Nil {
