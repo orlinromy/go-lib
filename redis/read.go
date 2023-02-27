@@ -42,9 +42,10 @@ func (r Client) Keys(ctx context.Context, match string) ([]string, error) {
 // -- returns in time.Duration which is always in nanoseconds; convert to seconds
 // -- it returns -1 (-1ns) when there is no associated expiry
 // -- it returns -2 (-2ns) when there is no key
-func (r Client) TTL(ctx context.Context, key string) (time.Duration, error) {
+func (r Client) TTL(ctx context.Context, key string) (int64, error) {
 	val, err := r.Client.TTL(ctx, key).Result()
 
+	// return a negative number to not confuse it with a positive value response
 	if err != nil {
 		r.log.Error("REDIS_TTL", err)
 		return -3, err
@@ -62,5 +63,5 @@ func (r Client) TTL(ctx context.Context, key string) (time.Duration, error) {
 		return -1, errMsg
 	}
 
-	return val / time.Second, nil
+	return int64(val / time.Second), nil
 }
