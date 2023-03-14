@@ -60,6 +60,30 @@ func DefaultConfig(name string) Config {
 	}
 }
 
+// ExchangeConfig is the configuration for exchange creation.
+type ExchangeConfig struct {
+	Name       string `json:"name" mapstructure:"name"`
+	Kind       string `json:"kind" mapstructure:"kind"`
+	Durable    bool   `json:"durable" mapstructure:"durable"`
+	AutoDelete bool   `json:"auto_delete" mapstructure:"auto_delete"`
+	Internal   bool   `json:"internal" mapstructure:"internal"`
+	NoWait     bool   `json:"no_wait" mapstructure:"no_wait"`
+	Args       map[string]interface{}
+}
+
+// DefaultExchangeConfig returns a default exchange configuration.
+func DefaultExchangeConfig(name string, kind string) ExchangeConfig {
+	return ExchangeConfig{
+		Name:       name,
+		Kind:       kind,
+		Durable:    true,
+		AutoDelete: false,
+		Internal:   false,
+		NoWait:     false,
+		Args:       nil,
+	}
+}
+
 // QueueConfig is the configuration for queue creation.
 type QueueConfig struct {
 	Name string `json:"name" mapstructure:"name"`
