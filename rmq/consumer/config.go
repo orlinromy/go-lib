@@ -7,6 +7,13 @@ import (
 	"github.com/kelchy/go-lib/log"
 )
 
+// Default constants for initialising default configs
+const defaultReconnectInterval = 5 * time.Second
+const defaultReconnectMaxAttempt = 3
+const defaultPrefetchCount = 1
+const defaultPrefetchSize = 0
+const defaultRetryCountLimit = 2
+
 // ConnectionConfig is the configuration for connection creation.
 type ConnectionConfig struct {
 	// ConnURIs: list of connection URIs.
@@ -21,8 +28,8 @@ type ConnectionConfig struct {
 func DefaultConnectionConfig(connURIs []string) ConnectionConfig {
 	return ConnectionConfig{
 		ConnURIs:            connURIs,
-		ReconnectInterval:   5 * time.Second,
-		ReconnectMaxAttempt: 3,
+		ReconnectInterval:   defaultReconnectInterval,
+		ReconnectMaxAttempt: defaultReconnectMaxAttempt,
 	}
 }
 
@@ -54,8 +61,8 @@ func DefaultConfig(name string) Config {
 		NoWait:          false,
 		Args:            nil,
 		EnabledPrefetch: true,
-		PrefetchCount:   1,
-		PrefetchSize:    0,
+		PrefetchCount:   defaultPrefetchCount,
+		PrefetchSize:    defaultPrefetchSize,
 		Global:          false,
 	}
 }
@@ -154,6 +161,6 @@ func DefaultMessageRetryConfig() MessageRetryConfig {
 	return MessageRetryConfig{
 		Enabled:           true,
 		HandleDeadMessage: true,
-		RetryCountLimit:   2,
+		RetryCountLimit:   defaultRetryCountLimit,
 	}
 }
