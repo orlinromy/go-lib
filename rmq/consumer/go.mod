@@ -1,4 +1,4 @@
-//v0.0.9
+//v0.0.10
 module github.com/kelchy/go-lib/rmq/consumer
 
 go 1.19
