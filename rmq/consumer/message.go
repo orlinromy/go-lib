@@ -7,6 +7,7 @@ import (
 // IMessage interface contains methods implemented by the package
 type IMessage interface {
 	GetID() string
+	IsRetry() bool
 	Ack(multiple bool) error
 	Nack(multiple bool, requeue bool) error
 	Reject(requeue bool) error
