@@ -2,6 +2,8 @@ package rabbitmq
 
 import (
 	"time"
+
+	uuid "github.com/kelchy/go-lib/rmq/publisher/internal/helper"
 )
 
 // PublishOptions are used to control how data is published
@@ -124,6 +126,14 @@ func WithPublishOptionsReplyTo(replyTo string) func(*PublishOptions) {
 func WithPublishOptionsMessageID(messageID string) func(*PublishOptions) {
 	return func(options *PublishOptions) {
 		options.MessageID = messageID
+	}
+}
+
+// WithPublishOptionsAutoMessageID returns a function that sets the message identifier to an auto generated value
+func WithPublishOptionsAutoMessageID() func(*PublishOptions) {
+	return func(options *PublishOptions) {
+		msgID, _ := uuid.NewUUID()
+		options.MessageID = msgID
 	}
 }
 

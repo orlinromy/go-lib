@@ -37,7 +37,7 @@ func main() {
 
 	publisher.NotifyReturn(func(r rabbitmq.Return) {
 		// To handle returned messages
-		fmt.Println("err message returned from server: ", string(r.Body))
+		fmt.Println("err message returned from server: ", string(r.MessageId), (r.Body))
 	})
 
 	publisher.NotifyPublish(func(c rabbitmq.Confirmation) {
@@ -59,11 +59,11 @@ func main() {
 
 	publisher2.NotifyReturn(func(r rabbitmq.Return) {
 		// To handle returned messages
-		fmt.Println("err message returned from server: ", string(r.Body))
+		fmt.Println("err message returned from server: ", string(r.MessageId), string(r.Body))
 	})
 
 	publisher2.NotifyPublish(func(c rabbitmq.Confirmation) {
-		fmt.Println("message confirmed from server. ack: ", c.DeliveryTag)
+		fmt.Println("message confirmed from server. ack: ", c.Ack)
 	})
 
 	// block main thread - wait for shutdown signal
@@ -81,18 +81,19 @@ func main() {
 
 	fmt.Println("awaiting signal")
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Second * 5)
 	for {
 		select {
 		case <-ticker.C:
 			err = publisher.PublishWithContext(
 				context.Background(),
 				[]byte("hello, world"),
-				[]string{"my_routing_key"},
+				[]string{"test_routing_key_1"},
 				rabbitmq.WithPublishOptionsContentType("application/json"),
 				rabbitmq.WithPublishOptionsMandatory,
 				rabbitmq.WithPublishOptionsPersistentDelivery,
 				rabbitmq.WithPublishOptionsExchange("events"),
+				rabbitmq.WithPublishOptionsAutoMessageID(),
 			)
 			if err != nil {
 				fmt.Println(err)
@@ -100,11 +101,12 @@ func main() {
 			err = publisher2.PublishWithContext(
 				context.Background(),
 				[]byte("hello, world 2"),
-				[]string{"my_routing_key_2"},
+				[]string{"test_routing_key_2"},
 				rabbitmq.WithPublishOptionsContentType("application/json"),
 				rabbitmq.WithPublishOptionsMandatory,
 				rabbitmq.WithPublishOptionsPersistentDelivery,
 				rabbitmq.WithPublishOptionsExchange("events"),
+				rabbitmq.WithPublishOptionsAutoMessageID(),
 			)
 			if err != nil {
 				fmt.Println(err)

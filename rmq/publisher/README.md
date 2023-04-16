@@ -1,4 +1,4 @@
-# RMQ Consumer
+# RMQ Publisher
 
 This library is a wrapper around RMQ functions to make interaction with RMQ simpler and safer. Functionality is tested with hosted CloudAMQP, which offers automated failover using connection with a single URI.
 
