@@ -12,7 +12,7 @@ import (
 
 func main() {
 	conn, err := rabbitmq.NewConn(
-		"amqps://hpyoucun:Yec9xQqm8ZFizmZshyqjuELwqrkT79ng@armadillo.rmq.cloudamqp.com/hpyoucun",
+		os.Getenv("RMQ_URI"),
 		rabbitmq.WithConnectionOptionsLogging,
 	)
 	if err != nil {
@@ -49,7 +49,10 @@ func main() {
 			AutoDelete: false,
 			Exclusive:  false,
 			NoWait:     false,
-			Args:       nil,
+			Args: map[string]interface{}{
+				"x-dead-letter-exchange":    "events",
+				"x-dead-letter-routing-key": "test_routing_key_dlk",
+			},
 		},
 	); err != nil {
 		fmt.Println(err)
@@ -62,7 +65,42 @@ func main() {
 		rabbitmq.BindingDeclareOptions{
 			QueueName:    "my_queue",
 			ExchangeName: "events",
-			RoutingKey:   "test_routing_key_1",
+			RoutingKey:   "test_routing_key",
+			NoWait:       false,
+			Args:         nil,
+			Declare:      true,
+		}); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := rabbitmq.DeclareQueue(
+		conn,
+		rabbitmq.QueueOptions{
+			Name:       "my_queue_dlx",
+			Declare:    true,
+			Durable:    true,
+			AutoDelete: false,
+			Exclusive:  false,
+			NoWait:     false,
+			Args: map[string]interface{}{
+				"x-dead-letter-exchange":    "events",
+				"x-dead-letter-routing-key": "test_routing_key",
+				"x-message-ttl":             10000,
+			},
+		},
+	); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Verify that queue is bound to exchange (Not needed binding is declared in NewConsumer)
+	if err := rabbitmq.DeclareBinding(
+		conn,
+		rabbitmq.BindingDeclareOptions{
+			QueueName:    "my_queue_dlx",
+			ExchangeName: "events",
+			RoutingKey:   "test_routing_key_dlk",
 			NoWait:       false,
 			Args:         nil,
 			Declare:      true,
@@ -73,15 +111,19 @@ func main() {
 
 	consumer, err := rabbitmq.NewConsumer(
 		conn,
-		func(d rabbitmq.Delivery) rabbitmq.Action {
-			log.Printf("consumed 1: %s, %v", string(d.MessageId), string(d.Body))
-			// rabbitmq.Ack, rabbitmq.NackDiscard, rabbitmq.NackRequeue
-			return rabbitmq.Ack
-		},
+		eventHandler,
+		deadMessageHandler,
 		"my_queue",
 		rabbitmq.WithConsumerOptionsConcurrency(2),
-		rabbitmq.WithConsumerOptionsRoutingKey("test_routing_key_1"),
+		rabbitmq.WithConsumerOptionsRoutingKey("test_routing_key"),
 		rabbitmq.WithConsumerOptionsExchangeName("events"),
+		rabbitmq.WithConsumerOptionsQueueArgs(map[string]interface{}{
+			"x-dead-letter-exchange":    "events",
+			"x-dead-letter-routing-key": "test_routing_key_dlk",
+		}),
+		rabbitmq.WithConsumerOptionsConsumerRetryLimit(3),
+		rabbitmq.WithConsumerOptionsConsumerDlxRetry,
+		rabbitmq.WithConsumerOptionsQueueDurable,
 	)
 	if err != nil {
 		fmt.Println(err)
@@ -90,15 +132,19 @@ func main() {
 
 	consumer2, err := rabbitmq.NewConsumer(
 		conn,
-		func(d rabbitmq.Delivery) rabbitmq.Action {
-			log.Printf("consumed 2: %s, %v", string(d.MessageId), string(d.Body))
-			// rabbitmq.Ack, rabbitmq.NackDiscard, rabbitmq.NackRequeue
-			return rabbitmq.Ack
-		},
+		eventHandler,
+		deadMessageHandler,
 		"my_queue",
 		rabbitmq.WithConsumerOptionsConcurrency(2),
-		rabbitmq.WithConsumerOptionsRoutingKey("test_routing_key_2"),
+		rabbitmq.WithConsumerOptionsRoutingKey("test_routing_key"),
 		rabbitmq.WithConsumerOptionsExchangeName("events"),
+		rabbitmq.WithConsumerOptionsQueueArgs(map[string]interface{}{
+			"x-dead-letter-exchange":    "events",
+			"x-dead-letter-routing-key": "test_routing_key_dlk",
+		}),
+		rabbitmq.WithConsumerOptionsConsumerRetryLimit(3),
+		rabbitmq.WithConsumerOptionsConsumerDlxRetry,
+		rabbitmq.WithConsumerOptionsQueueDurable,
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -121,4 +167,23 @@ func main() {
 	fmt.Println("awaiting signal")
 	<-done
 	fmt.Println("stopping consumer")
+}
+
+func eventHandler(d rabbitmq.Delivery) error {
+	fmt.Printf("consumed: %s, %v \n", string(d.MessageId), string(d.Body))
+	return fmt.Errorf("TEST_ERR")
+	err := d.Ack(false)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func deadMessageHandler(d rabbitmq.Delivery) error {
+	fmt.Printf("Dead Message Received: %s, %v \n", string(d.MessageId), string(d.Body))
+	err := d.Ack(false)
+	if err != nil {
+		return err
+	}
+	return nil
 }

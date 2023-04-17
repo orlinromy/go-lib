@@ -74,12 +74,15 @@ type ConsumerOptions struct {
 // RabbitConsumerOptions are used to configure the consumer
 // on the rabbit server
 type RabbitConsumerOptions struct {
-	Name      string
-	AutoAck   bool
-	Exclusive bool
-	NoWait    bool
-	NoLocal   bool
-	Args      Table
+	Name       string
+	AutoAck    bool
+	Exclusive  bool
+	NoWait     bool
+	NoLocal    bool
+	DlxRetry   bool // if true, the consumer will retry failed messages using the DLX
+	Retry      bool // if true, the consumer will retry failed messages
+	RetryLimit int  // the number of times a message will be retried before being rejected
+	Args       Table
 }
 
 // QueueOptions are used to configure a queue.
@@ -264,6 +267,30 @@ func WithConsumerOptionsConsumerExclusive(options *ConsumerOptions) {
 // exception will be raised and the channel will be closed.
 func WithConsumerOptionsConsumerNoWait(options *ConsumerOptions) {
 	options.RabbitConsumerOptions.NoWait = true
+}
+
+// WithConsumerOptionsConsumerRetry sets the consumer to retry, which means
+// it will retry failed messages instantly by queuing them up again on the same routing key
+// Only use this if you have a quorum queue since poison messages will be requeued
+func WithConsumerOptionsConsumerRetry(options *ConsumerOptions) {
+	options.RabbitConsumerOptions.Retry = true
+}
+
+// WithConsumerOptionsConsumerDlxRetry sets the consumer to retry using dlx, which means
+// it will retry failed messages by queuing them up again on the dlx exchange
+// this is useful if you want to retry messages after a delay and have set up a dlx exchange
+// with a ttl on the queue
+func WithConsumerOptionsConsumerDlxRetry(options *ConsumerOptions) {
+	options.RabbitConsumerOptions.DlxRetry = true
+}
+
+// WithConsumerOptionsConsumerRetryLimit sets the consumer to the retry limit, which means
+// it will retry failed messages up to the limit and then drop them.
+// Dropped messages will be sent to the dead message handler and not the dlq
+func WithConsumerOptionsConsumerRetryLimit(limit int) func(*ConsumerOptions) {
+	return func(options *ConsumerOptions) {
+		options.RabbitConsumerOptions.RetryLimit = limit
+	}
 }
 
 // WithConsumerOptionsLogging uses a default logger that writes to std out
