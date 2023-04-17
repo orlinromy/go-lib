@@ -6,4 +6,4 @@ Adapted from [go-rabbitmq](https://github.com/wagslane/go-rabbitmq)
 
 ## Quickstart
 
-Refer to `example/consumer.example.go` to see how to setup your own publisher
+Refer to `example/consumer.example.go` to see how to setup your own consumer
