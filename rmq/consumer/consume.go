@@ -26,7 +26,7 @@ const (
 	NackDiscard
 	// NackRequeue deliver this message to a different consumer.
 	NackRequeue
-	// Message acknowledgement is left to the user using the msg.Ack() method
+	// Manual means message acknowledgement is left to the user using the msg.Ack() method
 	Manual
 )
 

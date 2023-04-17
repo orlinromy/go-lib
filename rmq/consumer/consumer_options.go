@@ -112,6 +112,7 @@ type BindingOptions struct {
 	Declare bool
 }
 
+// BindingDeclareOptions are used to configure a binding declaration
 type BindingDeclareOptions struct {
 	QueueName    string
 	RoutingKey   string

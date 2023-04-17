@@ -9,4 +9,5 @@ type Logger interface {
 	Error(key string, err error)
 }
 
+// DefaultLogger is the default logger used by the library.
 var DefaultLogger, _ = log.New("standard")

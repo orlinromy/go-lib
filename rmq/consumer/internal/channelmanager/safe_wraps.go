@@ -171,6 +171,7 @@ func (chanManager *ChannelManager) PublishWithContextSafe(
 	)
 }
 
+// PublishWithDeferredConfirmWithContextSafe safely wraps the (*amqp.Channel).PublishWithDeferredConfirmWithContext method.
 func (chanManager *ChannelManager) PublishWithDeferredConfirmWithContextSafe(
 	ctx context.Context, exchange string, key string, mandatory bool, immediate bool, msg amqp.Publishing,
 ) (*amqp.DeferredConfirmation, error) {
