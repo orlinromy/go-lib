@@ -61,6 +61,7 @@ type Publisher struct {
 	options PublisherOptions
 }
 
+// PublisherConfirmation is a slice of Confirmations that can be used to wait for all of them to be confirmed
 type PublisherConfirmation []*amqp.DeferredConfirmation
 
 // NewPublisher returns a new publisher with an open channel to the cluster.
@@ -202,6 +203,7 @@ func (publisher *Publisher) PublishWithContext(
 	return nil
 }
 
+// PublishWithDeferredConfirmWithContext publishes the provided data to the given routing keys over the connection with a context.
 func (publisher *Publisher) PublishWithDeferredConfirmWithContext(
 	ctx context.Context,
 	data []byte,
