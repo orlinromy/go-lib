@@ -11,7 +11,7 @@ Functionlity Supported:
 | Dead Letter Queue               | ✅         |
 | Auto Reconnect upon disconnects | ✅         |
 | Immediate & Mandatory Options   | ✅         |
-| Message retry count             | WIP        |
+| Message retry count             | ✅         |
 
 ## Quickstart
 

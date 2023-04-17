@@ -88,7 +88,7 @@ func main() {
 			err = publisher.PublishWithContext(
 				context.Background(),
 				[]byte("hello, world"),
-				[]string{"test_routing_key_1"},
+				[]string{"test_routing_key"},
 				rabbitmq.WithPublishOptionsContentType("application/json"),
 				rabbitmq.WithPublishOptionsMandatory,
 				rabbitmq.WithPublishOptionsPersistentDelivery,
@@ -101,7 +101,7 @@ func main() {
 			err = publisher2.PublishWithContext(
 				context.Background(),
 				[]byte("hello, world 2"),
-				[]string{"test_routing_key_2"},
+				[]string{"test_routing_key"},
 				rabbitmq.WithPublishOptionsContentType("application/json"),
 				rabbitmq.WithPublishOptionsMandatory,
 				rabbitmq.WithPublishOptionsPersistentDelivery,
