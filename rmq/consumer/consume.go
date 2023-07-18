@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/kelchy/go-lib/rmq/consumer/internal/channelmanager"
-
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
