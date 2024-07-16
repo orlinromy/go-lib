@@ -229,7 +229,7 @@ func handlerGoroutine(consumer *Consumer, msgs <-chan amqp.Delivery, consumeOpti
 
 		// Attempt to handle message, Ack should be performed by user in handler, we only handle error cases.
 		if err := handler(Delivery{msg}); err != nil {
-			consumer.options.Logger.Error("ERR_CONSUMER_HANDLER", fmt.Errorf("error in handler: %v", err))
+			consumer.options.Logger.Error("ERR_CONSUMER_HANDLER", fmt.Errorf("message: %#v, error in handler: %v", msg, err))
 			// Two options here, requeue directly into queue or requeue via dead letter exchange
 			if consumeOptions.RabbitConsumerOptions.DlxRetry {
 				err := msg.Nack(false, false)
