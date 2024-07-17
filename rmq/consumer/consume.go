@@ -235,6 +235,10 @@ func handlerGoroutine(consumer *Consumer, msgs <-chan amqp.Delivery, consumeOpti
 				routingKey = table["routing-keys"].([]interface{})[0].(string)
 			}
 
+			if routingKey == "" {
+				routingKey = msg.RoutingKey
+			}
+
 			consumer.options.Logger.Error("ERR_CONSUMER_HANDLER", fmt.Errorf("messageID:%s, first routing key: %s, error in handler: %v", msg.MessageId, routingKey, err))
 			// Two options here, requeue directly into queue or requeue via dead letter exchange
 			if consumeOptions.RabbitConsumerOptions.DlxRetry {
